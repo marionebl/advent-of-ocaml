@@ -1,22 +1,12 @@
-open Core
+open Base
 open OUnit2
 open Puzzle
 
-let ae exp got _test_ctxt = assert_equal exp got ~printer:Int.to_string
-let aes exp got _test_ctxt = assert_equal exp got ~printer:String.of_string
-let aeo exp got _test_ctxt = assert_equal exp got ~printer:(fun o -> match o with None -> "None" | Some(v) -> Printf.sprintf "Some(%s)" v)
-
-let tcmp (aa, ab) (ba, bb) = aa = ba && ab = bb
-let tprinter (a, b) = Printf.sprintf "(%i, %i)" a b
-let aet exp got _test_ctxt = assert_equal exp got ~cmp:tcmp ~printer:tprinter
-
-let tbprinter (a, b) = Printf.sprintf "(%b, %b)" a b
-let aetb exp got _test_ctxt = assert_equal exp got ~cmp:tcmp ~printer:tbprinter
-
+let lprinter l = Printf.sprintf "[%s]" (String.concat ~sep:";" l)
+let ael exp got _test_ctxt = assert_equal exp got ~cmp:(List.equal ~equal:String.equal) ~printer:lprinter
 
 let tests = [
-     (* "distance" >:: ae 0 (distance "a" "a"); *)
-
+     "sort_input" >:: ael ["1"; "2"; "3"] (sort_input ["2"; "1"; "3"])
 ]
 
 let () =
