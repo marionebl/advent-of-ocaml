@@ -3,13 +3,30 @@ open OUnit2
 open Puzzle
 
 let ae exp got _test_ctxt = assert_equal exp got ~printer:Int.to_string
+let aes exp got _test_ctxt = assert_equal exp got ~printer:String.of_string
+let aeo exp got _test_ctxt = assert_equal exp got ~printer:(fun o -> match o with None -> "None" | Some(v) -> Printf.sprintf "Some(%s)" v)
+
+let tcmp (aa, ab) (ba, bb) = aa = ba && ab = bb
+let tprinter (a, b) = Printf.sprintf "(%i, %i)" a b
+let aet exp got _test_ctxt = assert_equal exp got ~cmp:tcmp ~printer:tprinter
+
+let tbprinter (a, b) = Printf.sprintf "(%b, %b)" a b
+let aetb exp got _test_ctxt = assert_equal exp got ~cmp:tcmp ~printer:tbprinter
+
 
 let tests = [
-     "compute" >:: ae 0 (compute [1; -1]);
-     "compute" >:: ae 10 (compute [3; 3; 4; -2; -4]);
-     "compute" >:: ae 5 (compute [-6; +3; +8; +5; -6]); 
-     "compute" >:: ae 14 (compute [+7; +7; -2; -7; -4]);
-     "solve" >:: ae 394 (solve "input");
+     "distance" >:: ae 0 (distance "a" "a");
+     "distance" >:: ae 1 (distance "a" "b");
+     "distance" >:: ae 2 (distance "aa" "bb");
+     "common" >:: aes "" (common "a" "b");
+     "common" >:: aes "a" (common "aa" "ab");
+     "common" >:: aes "b" (common "ab" "cb");
+     "find_match" >:: aeo None (find_match [] "");
+     "find_match" >:: aeo None (find_match ["a"] "a");
+     "find_match" >:: aeo None (find_match ["aa"; "bb"] "aa");
+     "find_match" >:: aeo (Some "ab") (find_match ["aa"; "bb"; "ab"] "aa");
+     "compute" >:: aes "a" (compute ["aa"; "bb"; "ab"]);
+     "solve" >:: aes "megsdlpulxvinkatfoyzxcbvq" (solve "input");
 ]
 
 let () =

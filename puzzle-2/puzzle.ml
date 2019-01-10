@@ -1,38 +1,22 @@
 open Core
 
-let stream_fold ~f ~init stream =
-    let result = ref (None, init) in
-    let exit = ref None in
-    let () =
-        while Option.is_none !exit do
-            match f !result (Stream.next stream) with
-                | (Some(r), _) -> exit := Some(r)
-                | r -> result := r
-        done 
-    in
-    Option.value_exn !exit
+let distance a b =
+    String.foldi a ~init:0 ~f:(fun i acc c -> if c = (String.nget b i) then acc else acc + 1)
 
-let cycle items =
-    let buf = ref [] in
-    let rec next _ =
-      if !buf = [] then buf := items;
-      match !buf with
-        | h :: t -> (buf := t; Some h)
-        | [] -> None in
-    Stream.from next;;
+let find_match l i =
+    List.find l ~f:(fun j -> (distance i j) = 1)
 
-let compute s = 
-    let _compute (r, p) i = 
-        match r with
-            | Some(_) -> (r, p)
-            | None ->
-                let s = (i + List.hd_exn p) in
-                ((List.find p ~f:(Int.equal s)), s :: p)
-    in
-    cycle s |>
-    stream_fold ~f:_compute ~init:[0]
+let common a b =
+    String.foldi a ~init:[] ~f:(fun i acc c -> if c = (String.nget b i) then c :: acc else acc)
+    |> List.rev
+    |> String.of_char_list
+
+let compute l =
+    List.find_map l ~f:(fun i -> find_match l i |> Option.map ~f:(fun o -> (i, o)))
+    |> (function
+        | None -> ""
+        | Some((a, b)) -> common a b
+    )
 
 let solve filename = 
-    In_channel.read_lines filename
-    |> List.map ~f:Int.of_string
-    |> compute
+  In_channel.read_lines filename |> compute
