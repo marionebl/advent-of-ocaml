@@ -1,43 +1,34 @@
 open Core
 
-type claim = < 
-  id: string;
-  x: int;
-  y: int;
-  width: int;
-  height: int;
-  contains: int -> int -> bool;
->
+module Coords = struct
+  include Tuple.Make (Int) (Int)
+  include Tuple.Comparable (Int) (Int)
+end
 
-let create_claim id data =
-  let get = List.nth_exn data in
-  let x = get 0 in
-  let y = get 1 in
-  let width = get 2 in
-  let height = get 3 in
-  object (self)
-    method id = id
-    method x = x
-    method y = y
-    method width = width
-    method height = height
-    method contains x y = 
-      self#x <= x && 
-      self#y <= y && 
-      x <= self#x + self#width && 
-      y <= self#y + self#height
-  end
+module Claim = struct
+  type t = {id: int; x: int; y: int; w: int; h: int}
 
-let parse line =
-  let f = String.split_on_chars line ~on:['#'; '@'; ','; 'x'; ':']
-    |> List.filter ~f:(Fn.non String.is_empty)
-  in
-  let id = f
-    |> (Fn.flip List.nth_exn) 0
-    |> (Fn.flip String.drop_suffix) 1
-  in
-  let n = List.drop f 1
-    |> List.map ~f:(String.strip ~drop:(fun c -> c = ' '))
-    |> List.map ~f:Int.of_string
-  in
-  create_claim id n
+  let of_string s = Scanf.sscanf s "#%d @ %d,%d: %dx%d" (fun id x y w h -> {id; x; y; w; h} )
+
+  let x_axis t = List.range t.x (t.x + t.w)
+
+  let y_axis t = List.range t.y (t.y + t.h)
+
+  let coords t =
+    List.cartesian_product (x_axis t) (y_axis t)
+
+  let stake ~map ~claim =
+    List.fold (coords claim) 
+      ~init:map 
+      ~f:(fun claims coord -> Coords.Map.update claims coord ~f:(Option.value_map ~default:1 ~f:(fun v -> v + 1)))
+end
+
+let solve_one input =
+  In_channel.read_lines input 
+  |> List.map ~f:Claim.of_string
+  |> List.fold ~init:Coords.Map.empty ~f:(fun map claim -> Claim.stake ~map ~claim)
+  |> Coords.Map.count ~f:(fun v -> v > 1)
+
+let () =
+  let one = solve_one "input" in
+  Printf.printf "overlapping %i\n" one

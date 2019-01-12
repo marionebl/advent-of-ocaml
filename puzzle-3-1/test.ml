@@ -16,21 +16,11 @@ let aetb exp got _test_ctxt = assert_equal exp got ~cmp:tcmp ~printer:tbprinter
 
 
 let tests = [
-     ("parse id" >:: aes "1" (parse "#1 @ 596,731: 11x27")#id);
-     ("parse x" >:: ae 596 (parse "#1 @ 596,731: 11x27")#x);
-     ("parse <" >:: ae 731 (parse "#1 @ 596,731: 11x27")#y);
-     ("parse x" >:: ae 11 (parse "#1 @ 596,731: 11x27")#width);
-     ("parse <" >:: ae 27 (parse "#1 @ 596,731: 11x27")#height);
-
-     ("parse id" >:: aes "1164" (parse "#1164 @ 598,350: 12x13")#id);
-     ("parse x" >:: ae 598 (parse "#1164 @ 598,350: 12x13")#x);
-     ("parse <" >:: ae 350 (parse "#1164 @ 598,350: 12x13")#y);
-     ("parse x" >:: ae 12 (parse "#1164 @ 598,350: 12x13")#width);
-     ("parse <" >:: ae 13 (parse "#1164 @ 598,350: 12x13")#height);
-
-     ("claim(x: 0, y: 0, w: 1, h: 1)#contains 0 0" >:: aeb true ((create_claim "1" [0; 0; 1; 1])#contains 0 0));
-     ("claim(x: 0, y: 0, w: 1, h: 1)#contains 1 1" >:: aeb true ((create_claim "1" [0; 0; 1; 1])#contains 1 1));
-     ("claim(x: 0, y: 0, w: 1, h: 1)#contains 1 2" >:: aeb false ((create_claim "1" [0; 0; 1; 1])#contains 1 2));
+     ("parse id" >:: ae 1 (Claim.of_string "#1 @ 596,731: 11x27").id);
+     ("parse x" >:: ae 596 (Claim.of_string "#1 @ 596,731: 11x27").x);
+     ("parse y" >:: ae 731 (Claim.of_string "#1 @ 596,731: 11x27").y);
+     ("parse w" >:: ae 11 (Claim.of_string "#1 @ 596,731: 11x27").w);
+     ("parse h" >:: ae 27 (Claim.of_string "#1 @ 596,731: 11x27").h);
 ]
 
 let () =
