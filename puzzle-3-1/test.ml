@@ -3,6 +3,7 @@ open OUnit2
 open Puzzle
 
 let ae exp got _test_ctxt = assert_equal exp got ~printer:Int.to_string
+let aeb exp got _test_ctxt = assert_equal exp got ~printer:Bool.to_string
 let aes exp got _test_ctxt = assert_equal exp got ~printer:String.of_string
 let aeo exp got _test_ctxt = assert_equal exp got ~printer:(fun o -> match o with None -> "None" | Some(v) -> Printf.sprintf "Some(%s)" v)
 
@@ -26,6 +27,10 @@ let tests = [
      ("parse <" >:: ae 350 (parse "#1164 @ 598,350: 12x13")#y);
      ("parse x" >:: ae 12 (parse "#1164 @ 598,350: 12x13")#width);
      ("parse <" >:: ae 13 (parse "#1164 @ 598,350: 12x13")#height);
+
+     ("claim(x: 0, y: 0, w: 1, h: 1)#contains 0 0" >:: aeb true ((create_claim "1" [0; 0; 1; 1])#contains 0 0));
+     ("claim(x: 0, y: 0, w: 1, h: 1)#contains 1 1" >:: aeb true ((create_claim "1" [0; 0; 1; 1])#contains 1 1));
+     ("claim(x: 0, y: 0, w: 1, h: 1)#contains 1 2" >:: aeb false ((create_claim "1" [0; 0; 1; 1])#contains 1 2));
 ]
 
 let () =
