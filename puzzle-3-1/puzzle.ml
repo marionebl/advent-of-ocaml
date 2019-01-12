@@ -21,6 +21,11 @@ module Claim = struct
     List.fold (coords claim) 
       ~init:map 
       ~f:(fun claims coord -> Coords.Map.update claims coord ~f:(Option.value_map ~default:1 ~f:(fun v -> v + 1)))
+
+  let safe ~map ~claim =
+    (coords claim) 
+    |> List.filter_map ~f:(fun claim -> Coords.Map.find map claim)
+    |> List.for_all ~f:(fun count -> count = 1)
 end
 
 let solve_one input =
@@ -29,6 +34,14 @@ let solve_one input =
   |> List.fold ~init:Coords.Map.empty ~f:(fun map claim -> Claim.stake ~map ~claim)
   |> Coords.Map.count ~f:(fun v -> v > 1)
 
+let solve_two input =
+  let claims = In_channel.read_lines input |> List.map ~f:Claim.of_string in
+  let map = claims |> List.fold ~init:Coords.Map.empty ~f:(fun map claim -> Claim.stake ~map ~claim) in
+  claims 
+  |> List.find_exn ~f:(fun claim -> Claim.safe ~map ~claim)
+
 let () =
   let one = solve_one "input" in
-  Printf.printf "overlapping %i\n" one
+  let two = solve_two "input" in
+  Printf.printf "overlapping inches %i\n" one ;
+  Printf.printf "safe claim %i\n" two.id
